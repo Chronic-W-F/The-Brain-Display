@@ -78,4 +78,89 @@
 
   <div class="display-panel">
     <div class="reading"><span class="label">Current Temp:</span> <span id="temp">--</span>°F</div>
-    <div class="reading
+    <div class="reading"><span class="label">Current Humidity:</span> <span id="humidity">--</span>%</div>
+
+    <div class="status" id="systemStatus">Idle</div>
+
+    <div class="controls">
+      <div class="control-line">
+        <span class="label">Target Temp:</span> 
+        <span id="setTemp" style="margin-left:5px;">60</span>°F 
+        <button onclick="adjustTarget('temp', 1)">+</button>
+        <button onclick="adjustTarget('temp', -1)">-</button>
+      </div>
+
+      <div class="control-line">
+        <span class="label">Target Humidity:</span> 
+        <span id="setHumidity" style="margin-left:5px;">58</span>% 
+        <button onclick="adjustTarget('humidity', 1)">+</button>
+        <button onclick="adjustTarget('humidity', -1)">-</button>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    function getRandom(min, max) {
+      return Math.floor(Math.random() * (max - min + 1)) + min;
+    }
+
+    function updateReadings() {
+      const temp = getRandom(58, 65);
+      const humidity = getRandom(54, 64);
+
+      document.getElementById('temp').innerText = temp;
+      document.getElementById('humidity').innerText = humidity;
+    }
+
+    function updateSystemStatus() {
+      const statusElement = document.getElementById('systemStatus');
+      const randomState = Math.floor(Math.random() * 4);
+
+      switch (randomState) {
+        case 0:
+          statusElement.innerText = "Idle";
+          statusElement.style.backgroundColor = "#d0ffd0";
+          statusElement.style.borderColor = "#3c763d";
+          statusElement.style.color = "#333";
+          break;
+        case 1:
+          statusElement.innerText = "Cooling...";
+          statusElement.style.backgroundColor = "#d0e8ff";
+          statusElement.style.borderColor = "#337ab7";
+          statusElement.style.color = "#333";
+          break;
+        case 2:
+          statusElement.innerText = "Heating...";
+          statusElement.style.backgroundColor = "#fff5cc";
+          statusElement.style.borderColor = "#f0ad4e";
+          statusElement.style.color = "#333";
+          break;
+        case 3:
+          statusElement.innerText = "ALARM! Check Chamber!";
+          statusElement.style.backgroundColor = "#ffd6d6";
+          statusElement.style.borderColor = "#d9534f";
+          statusElement.style.color = "#a94442";
+          break;
+      }
+    }
+
+    function adjustTarget(type, amount) {
+      if (type === 'temp') {
+        let temp = parseInt(document.getElementById('setTemp').innerText);
+        temp += amount;
+        document.getElementById('setTemp').innerText = temp;
+      } else if (type === 'humidity') {
+        let humidity = parseInt(document.getElementById('setHumidity').innerText);
+        humidity += amount;
+        document.getElementById('setHumidity').innerText = humidity;
+      }
+    }
+
+    setInterval(updateReadings, 5000);
+    setInterval(updateSystemStatus, 5000);
+    updateReadings();
+    updateSystemStatus();
+  </script>
+
+</body>
+</html>

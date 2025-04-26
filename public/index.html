@@ -1,117 +1,81 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>The Brain Display</title>
-    <style>
-        body {
-            margin: 0;
-            font-family: Arial, sans-serif;
-            background: linear-gradient(#999, #ccc);
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: flex-start;
-            min-height: 100vh;
-            padding: 20px;
-            color: #333;
-        }
-        .header {
-            font-size: 2em;
-            font-weight: bold;
-            margin-bottom: 20px;
-        }
-        .display-panel {
-            background: #e0e0e0;
-            border: 2px solid #777;
-            border-radius: 15px;
-            padding: 30px;
-            width: 90%;
-            max-width: 400px;
-            box-shadow: 2px 2px 12px rgba(0,0,0,0.2);
-        }
-        .reading {
-            font-size: 1.5em;
-            margin: 10px 0;
-        }
-        .label {
-            font-weight: bold;
-        }
-        .status {
-            margin-top: 20px;
-            padding: 10px;
-            border: 2px solid #333;
-            border-radius: 8px;
-            font-weight: bold;
-            text-align: center;
-            transition: background-color 0.5s, border-color 0.5s, color 0.5s;
-        }
-    </style>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>The Brain Display</title>
+  <style>
+    body {
+      margin: 0;
+      font-family: Arial, sans-serif;
+      background: linear-gradient(#999, #ccc);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: flex-start;
+      min-height: 100vh;
+      padding: 20px;
+      color: #333;
+    }
+    .header {
+      font-size: 2em;
+      font-weight: bold;
+      margin-bottom: 20px;
+    }
+    .display-panel {
+      background: #e0e0e0;
+      border: 2px solid #777;
+      border-radius: 15px;
+      padding: 30px;
+      width: 90%;
+      max-width: 400px;
+      box-shadow: 2px 2px 12px rgba(0,0,0,0.2);
+    }
+    .reading {
+      font-size: 1.5em;
+      margin: 10px 0;
+    }
+    .label {
+      font-weight: bold;
+    }
+    .status {
+      margin-top: 20px;
+      padding: 10px;
+      border: 2px solid #333;
+      border-radius: 8px;
+      font-weight: bold;
+      text-align: center;
+      transition: background-color 0.5s, border-color 0.5s, color 0.5s;
+    }
+    .controls {
+      margin-top: 20px;
+    }
+    .control-line {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin: 8px 0;
+    }
+    .control-line button {
+      margin-left: 10px;
+      margin-right: 5px;
+      font-size: 1em;
+      padding: 5px 10px;
+      border: 1px solid #555;
+      border-radius: 5px;
+      background-color: #fff;
+      cursor: pointer;
+      transition: background-color 0.2s;
+    }
+    .control-line button:hover {
+      background-color: #ddd;
+    }
+  </style>
 </head>
 <body>
 
-    <div class="header">The Brain</div>
+  <div class="header">The Brain</div>
 
-    <div class="display-panel">
-        <div class="reading"><span class="label">Current Temp:</span> <span id="temp">--</span>°F</div>
-        <div class="reading"><span class="label">Current Humidity:</span> <span id="humidity">--</span>%</div>
-        <div class="reading"><span class="label">Target Temp:</span> <span id="setTemp">60</span>°F</div>
-        <div class="reading"><span class="label">Target Humidity:</span> <span id="setHumidity">58</span>%</div>
-
-        <div class="status" id="systemStatus">Idle</div>
-    </div>
-
-    <script>
-        function getRandom(min, max) {
-            return Math.floor(Math.random() * (max - min + 1)) + min;
-        }
-
-        function updateReadings() {
-            const temp = getRandom(58, 65);
-            const humidity = getRandom(54, 64);
-
-            document.getElementById('temp').innerText = temp;
-            document.getElementById('humidity').innerText = humidity;
-        }
-
-        function updateSystemStatus() {
-            const statusElement = document.getElementById('systemStatus');
-            const randomState = Math.floor(Math.random() * 4);
-
-            switch (randomState) {
-                case 0:
-                    statusElement.innerText = "Idle";
-                    statusElement.style.backgroundColor = "#d0ffd0";
-                    statusElement.style.borderColor = "#3c763d";
-                    statusElement.style.color = "#333";
-                    break;
-                case 1:
-                    statusElement.innerText = "Cooling...";
-                    statusElement.style.backgroundColor = "#d0e8ff";
-                    statusElement.style.borderColor = "#337ab7";
-                    statusElement.style.color = "#333";
-                    break;
-                case 2:
-                    statusElement.innerText = "Heating...";
-                    statusElement.style.backgroundColor = "#fff5cc";
-                    statusElement.style.borderColor = "#f0ad4e";
-                    statusElement.style.color = "#333";
-                    break;
-                case 3:
-                    statusElement.innerText = "ALARM! Check Chamber!";
-                    statusElement.style.backgroundColor = "#ffd6d6";
-                    statusElement.style.borderColor = "#d9534f";
-                    statusElement.style.color = "#a94442";
-                    break;
-            }
-        }
-
-        setInterval(updateReadings, 5000);
-        setInterval(updateSystemStatus, 5000);
-        updateReadings();
-        updateSystemStatus();
-    </script>
-
-</body>
-</html>
+  <div class="display-panel">
+    <div class="reading"><span class="label">Current Temp:</span> <span id="temp">--</span>°F</div>
+    <div class="reading

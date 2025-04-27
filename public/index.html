@@ -3,11 +3,11 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>The Brain</title>
+  <title>The Brain Display</title>
   <style>
     body {
       font-family: Arial, sans-serif;
-      background: linear-gradient(to bottom, #a9a9a9, #c0c0c0);
+      background: linear-gradient(to bottom, #999, #ccc);
       display: flex;
       flex-direction: column;
       align-items: center;
@@ -15,8 +15,11 @@
       min-height: 100vh;
       margin: 0;
       padding: 20px;
+      color: #333;
     }
-    h1 {
+    .header {
+      font-size: 2em;
+      font-weight: bold;
       margin-bottom: 20px;
     }
     .card {
@@ -33,15 +36,7 @@
       padding: 10px;
       border-radius: 10px;
       font-weight: bold;
-    }
-    .idle {
-      background-color: #c6f6d5;
-    }
-    .cooling {
-      background-color: #bee3f8;
-    }
-    .heating {
-      background-color: #fed7d7;
+      transition: background-color 0.5s, border-color 0.5s, color 0.5s;
     }
     .controls {
       margin-top: 20px;
@@ -69,6 +64,7 @@
       border-radius: 8px;
       color: #000;
       cursor: pointer;
+      transition: background-color 0.2s;
     }
     .temp-increase {
       background-color: #ff6666; /* Red */
@@ -82,36 +78,106 @@
     .humidity-decrease {
       background-color: #ffff99; /* Yellow */
     }
+    .temp-increase:hover, .temp-decrease:hover, .humidity-increase:hover, .humidity-decrease:hover {
+      filter: brightness(85%);
+    }
   </style>
 </head>
 <body>
-  <h1>The Brain</h1>
+
+  <div class="header">The Brain</div>
 
   <div class="card">
     <div>
-      <p><strong>Current Temp:</strong> 61°F</p>
-      <p><strong>Current Humidity:</strong> 54%</p>
+      <p><strong>Current Temp:</strong> <span id="currentTemp">--</span>°F</p>
+      <p><strong>Current Humidity:</strong> <span id="currentHumidity">--</span>%</p>
     </div>
 
-    <div class="status cooling">Cooling...</div>
+    <div class="status" id="systemStatus">Idle</div>
 
     <div class="controls">
       <div class="control-row">
-        <span class="label">Target Temp: 60°F</span>
+        <span class="label">Target Temp:</span> 
+        <span id="targetTemp">60</span>°F
         <div class="adjust-buttons">
-          <button class="temp-increase">+</button>
-          <button class="temp-decrease">-</button>
+          <button class="temp-increase" onclick="adjustTarget('temp', 1)">+</button>
+          <button class="temp-decrease" onclick="adjustTarget('temp', -1)">-</button>
         </div>
       </div>
 
       <div class="control-row">
-        <span class="label">Target Humidity: 58%</span>
+        <span class="label">Target Humidity:</span> 
+        <span id="targetHumidity">58</span>%
         <div class="adjust-buttons">
-          <button class="humidity-increase">+</button>
-          <button class="humidity-decrease">-</button>
+          <button class="humidity-increase" onclick="adjustTarget('humidity', 1)">+</button>
+          <button class="humidity-decrease" onclick="adjustTarget('humidity', -1)">-</button>
         </div>
       </div>
     </div>
   </div>
+
+  <script>
+    function getRandom(min, max) {
+      return Math.floor(Math.random() * (max - min + 1)) + min;
+    }
+
+    function updateReadings() {
+      const temp = getRandom(58, 65);
+      const humidity = getRandom(54, 64);
+
+      document.getElementById('currentTemp').innerText = temp;
+      document.getElementById('currentHumidity').innerText = humidity;
+    }
+
+    function updateSystemStatus() {
+      const statusElement = document.getElementById('systemStatus');
+      const randomState = Math.floor(Math.random() * 4);
+
+      switch (randomState) {
+        case 0:
+          statusElement.innerText = "Idle";
+          statusElement.style.backgroundColor = "#d0ffd0";
+          statusElement.style.borderColor = "#3c763d";
+          statusElement.style.color = "#333";
+          break;
+        case 1:
+          statusElement.innerText = "Cooling...";
+          statusElement.style.backgroundColor = "#d0e8ff";
+          statusElement.style.borderColor = "#337ab7";
+          statusElement.style.color = "#333";
+          break;
+        case 2:
+          statusElement.innerText = "Heating...";
+          statusElement.style.backgroundColor = "#fff5cc";
+          statusElement.style.borderColor = "#f0ad4e";
+          statusElement.style.color = "#333";
+          break;
+        case 3:
+          statusElement.innerText = "ALARM! Check Chamber!";
+          statusElement.style.backgroundColor = "#ffd6d6";
+          statusElement.style.borderColor = "#d9534f";
+          statusElement.style.color = "#a94442";
+          break;
+      }
+    }
+
+    function adjustTarget(type, amount) {
+      if (type === 'temp') {
+        let temp = parseInt(document.getElementById('targetTemp').innerText);
+        temp += amount;
+        document.getElementById('targetTemp').innerText = temp;
+      } else if (type === 'humidity') {
+        let humidity = parseInt(document.getElementById('targetHumidity').innerText);
+        humidity += amount;
+        document.getElementById('targetHumidity').innerText = humidity;
+      }
+    }
+
+    setInterval(updateReadings, 5000);
+    setInterval(updateSystemStatus, 5000);
+    updateReadings();
+    updateSystemStatus();
+  </script>
+
 </body>
 </html>

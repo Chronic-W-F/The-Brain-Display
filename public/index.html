@@ -1,184 +1,203 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>The Brain Display</title>
-    <style>
-        body {
-            font-family: Arial, sans-serif;
-            background: linear-gradient(to bottom, #d3d3d3, #b0b0b0);
-            margin: 0;
-            padding: 20px;
-            text-align: center;
-        }
-        .container {
-            background: #f4f4f4;
-            padding: 30px;
-            border-radius: 25px;
-            display: inline-block;
-            box-shadow: 0 5px 15px rgba(0,0,0,0.3);
-        }
-        h1 {
-            margin-bottom: 20px;
-        }
-        .reading {
-            font-size: 20px;
-            margin: 10px 0;
-            font-weight: bold;
-        }
-        .status-line {
-            margin: 15px 0;
-            padding: 12px;
-            font-size: 20px;
-            font-weight: bold;
-            border-radius: 10px;
-            animation: pulse 2s infinite;
-        }
-        @keyframes pulse {
-            0% {opacity: 1;}
-            50% {opacity: 0.7;}
-            100% {opacity: 1;}
-        }
-        .alert {
-            background-color: #ff7f7f;
-            color: white;
-            margin: 10px 0;
-            padding: 10px;
-            font-size: 18px;
-            border-radius: 12px;
-        }
-        .alarm {
-            background-color: red;
-            color: white;
-            font-weight: bold;
-            font-size: 20px;
-            padding: 15px;
-            border-radius: 10px;
-            margin-bottom: 10px;
-        }
-        .target-controls {
-            margin-top: 20px;
-        }
-        .target-controls div {
-            margin: 8px 0;
-            font-size: 18px;
-            font-weight: bold;
-        }
-        button {
-            font-size: 20px;
-            font-weight: bold;
-            width: 40px;
-            height: 40px;
-            margin: 5px;
-            border: none;
-            border-radius: 8px;
-            color: white;
-            cursor: pointer;
-        }
-        .temp-plus { background-color: #ff4d4d; }
-        .temp-minus { background-color: #4d79ff; }
-        .humidity-plus { background-color: #4dff4d; }
-        .humidity-minus { background-color: #ffff4d; color: black; }
-    </style>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>The Brain Display</title>
+  <style>
+    body {
+      background: linear-gradient(to bottom, #d3d3d3, #c0c0c0);
+      font-family: Arial, sans-serif;
+      text-align: center;
+      padding: 30px;
+    }
+    .container {
+      background: #f0f0f0;
+      padding: 30px;
+      border-radius: 30px;
+      display: inline-block;
+      box-shadow: 0 4px 8px rgba(0,0,0,0.2);
+      margin-top: 20px;
+    }
+    h1 {
+      margin-bottom: 20px;
+    }
+    .reading {
+      font-size: 22px;
+      margin: 8px 0;
+      font-weight: bold;
+    }
+    .status {
+      margin: 10px auto;
+      padding: 10px;
+      font-size: 20px;
+      width: 90%;
+      border-radius: 12px;
+    }
+    .idle {
+      background-color: #ddd;
+    }
+    .cooling {
+      background-color: #add8e6;
+    }
+    .heating {
+      background-color: #f08080;
+    }
+    .alert {
+      margin-top: 10px;
+      background-color: #ff7f7f;
+      color: white;
+      font-weight: bold;
+      padding: 8px;
+      border-radius: 15px;
+      width: 90%;
+      margin-left: auto;
+      margin-right: auto;
+    }
+    .alarm {
+      margin-top: 8px;
+      background-color: #ff0000;
+      color: white;
+      font-weight: bold;
+      padding: 8px;
+      border-radius: 15px;
+      width: 90%;
+      margin-left: auto;
+      margin-right: auto;
+    }
+    .controls {
+      margin-top: 20px;
+    }
+    .target-label {
+      font-size: 20px;
+      font-weight: bold;
+    }
+    .adjust-buttons {
+      margin-top: 5px;
+    }
+    button {
+      width: 40px;
+      height: 40px;
+      margin: 2px;
+      border: none;
+      font-size: 20px;
+      font-weight: bold;
+      color: white;
+      border-radius: 8px;
+      cursor: pointer;
+    }
+    .red {
+      background-color: #ff5c5c;
+    }
+    .blue {
+      background-color: #4f8cff;
+    }
+    .green {
+      background-color: #4caf50;
+    }
+    .yellow {
+      background-color: #ffeb3b;
+      color: #333;
+    }
+  </style>
 </head>
 <body>
-    <h1>The Brain</h1>
+  <h1>The Brain</h1>
+  <div class="container">
+    <div class="reading" id="temp">Current Temp: 58°F</div>
+    <div class="reading" id="humidity">Current Humidity: 57%</div>
+    <div class="status idle" id="status">Idle</div>
 
-    <div class="container">
-        <div id="current-readings">
-            <div class="reading" id="temp">Current Temp: 60°F</div>
-            <div class="reading" id="humidity">Current Humidity: 58%</div>
-        </div>
+    <div id="alert" class="alert" style="display:none;">ALERT! Temp and/or Humidity Out of Range!</div>
+    <div id="alarm" class="alarm" style="display:none;">ALARM: Temp and/or Humidity!</div>
 
-        <div id="status" class="status-line" style="background-color: #cfcfcf;">Idle...</div>
+    <div class="controls">
+      <div class="target-label">
+        Target Temp: <span id="target-temp">60</span>°F
+      </div>
+      <div class="adjust-buttons">
+        <button class="red" onclick="adjustTarget('temp', 1)">+</button>
+        <button class="blue" onclick="adjustTarget('temp', -1)">-</button>
+      </div>
 
-        <div id="alert" class="alert" style="display:none;">
-            ALERT! Temp and/or Humidity Out of Range!
-        </div>
-        <div id="alarm" class="alarm" style="display:none;">
-            ALARM: Temp and/or Humidity!
-        </div>
-
-        <div class="target-controls">
-            <div>Target Temp: <span id="targetTemp">60</span>°F
-                <button class="temp-plus" onclick="adjustTemp(1)">+</button>
-                <button class="temp-minus" onclick="adjustTemp(-1)">-</button>
-            </div>
-            <div>Target Humidity: <span id="targetHumidity">58</span>%
-                <button class="humidity-plus" onclick="adjustHumidity(1)">+</button>
-                <button class="humidity-minus" onclick="adjustHumidity(-1)">-</button>
-            </div>
-        </div>
+      <div class="target-label" style="margin-top:15px;">
+        Target Humidity: <span id="target-humidity">58</span>%
+      </div>
+      <div class="adjust-buttons">
+        <button class="green" onclick="adjustTarget('humidity', 1)">+</button>
+        <button class="yellow" onclick="adjustTarget('humidity', -1)">-</button>
+      </div>
     </div>
+  </div>
 
-    <script>
-        let targetTemp = 60;
-        let targetHumidity = 58;
-        let currentTemp = 60;
-        let currentHumidity = 58;
+  <script>
+    let currentTemp = 58;
+    let currentHumidity = 57;
+    let targetTemp = 60;
+    let targetHumidity = 58;
 
-        function adjustTemp(change) {
-            targetTemp += change;
-            document.getElementById('targetTemp').innerText = targetTemp;
-        }
+    function updateDisplay() {
+      document.getElementById('temp').textContent = `Current Temp: ${currentTemp}°F`;
+      document.getElementById('humidity').textContent = `Current Humidity: ${currentHumidity}%`;
+      document.getElementById('target-temp').textContent = targetTemp;
+      document.getElementById('target-humidity').textContent = targetHumidity;
 
-        function adjustHumidity(change) {
-            targetHumidity += change;
-            document.getElementById('targetHumidity').innerText = targetHumidity;
-        }
+      let statusEl = document.getElementById('status');
 
-        function updateStatus() {
-            const status = document.getElementById('status');
-            const tempDiff = currentTemp - targetTemp;
+      // Determine status
+      if (currentTemp > targetTemp) {
+        statusEl.textContent = "Cooling...";
+        statusEl.className = "status cooling";
+      } else if (currentTemp < targetTemp) {
+        statusEl.textContent = "Heating...";
+        statusEl.className = "status heating";
+      } else {
+        statusEl.textContent = "Idle";
+        statusEl.className = "status idle";
+      }
 
-            if (Math.abs(tempDiff) <= 1) {
-                status.style.backgroundColor = '#cfcfcf';
-                status.innerText = "Idle";
-            } else if (tempDiff > 1) {
-                status.style.backgroundColor = '#4d79ff';
-                status.innerText = "Cooling...";
-            } else {
-                status.style.backgroundColor = '#ff4d4d';
-                status.innerText = "Heating...";
-            }
-        }
+      // Show alert if outside tight range
+      const tempDiff = Math.abs(currentTemp - targetTemp);
+      const humidityDiff = Math.abs(currentHumidity - targetHumidity);
 
-        function updateDisplay() {
-            document.getElementById('temp').innerText = `Current Temp: ${currentTemp}°F`;
-            document.getElementById('humidity').innerText = `Current Humidity: ${currentHumidity}%`;
-            updateStatus();
+      if (tempDiff > 2 || humidityDiff > 3) {
+        document.getElementById('alert').style.display = 'block';
+      } else {
+        document.getElementById('alert').style.display = 'none';
+      }
 
-            const tempDiff = Math.abs(currentTemp - targetTemp);
-            const humidityDiff = Math.abs(currentHumidity - targetHumidity);
+      // Show alarm if way out
+      if (tempDiff > 4 || humidityDiff > 5) {
+        document.getElementById('alarm').style.display = 'block';
+      } else {
+        document.getElementById('alarm').style.display = 'none';
+      }
+    }
 
-            const alertBox = document.getElementById('alert');
-            const alarmBox = document.getElementById('alarm');
+    function adjustTarget(type, amount) {
+      if (type === 'temp') {
+        targetTemp += amount;
+      } else if (type === 'humidity') {
+        targetHumidity += amount;
+      }
+      updateDisplay();
+    }
 
-            // Tighter alarms: 2°F and 2%
-            if (tempDiff > 2 || humidityDiff > 2) {
-                alertBox.style.display = 'block';
-                alarmBox.style.display = 'block';
-            } else {
-                alertBox.style.display = 'none';
-                alarmBox.style.display = 'none';
-            }
-        }
+    function randomizeReadings() {
+      // Randomly adjust temp and humidity by -2, -1, 0, +1, +2
+      currentTemp += Math.floor(Math.random() * 5) - 2;
+      currentHumidity += Math.floor(Math.random() * 5) - 2;
 
-        function randomizeMockData() {
-            // Randomly move temp and humidity by -2, -1, 0, +1, +2
-            currentTemp += Math.floor(Math.random() * 5) - 2;
-            currentHumidity += Math.floor(Math.random() * 5) - 2;
+      // Clamp reasonable bounds
+      currentTemp = Math.max(40, Math.min(80, currentTemp));
+      currentHumidity = Math.max(30, Math.min(90, currentHumidity));
 
-            // Keep humidity realistic (10%-90%)
-            currentHumidity = Math.min(90, Math.max(10, currentHumidity));
+      updateDisplay();
+    }
 
-            updateDisplay();
-        }
-
-        // Update the display immediately and every 10 seconds
-        updateDisplay();
-        setInterval(randomizeMockData, 10000);
-    </script>
+    // Start the simulation
+    updateDisplay();
+    setInterval(randomizeReadings, 10000); // Every 10 seconds
+  </script>
 </body>
 </html>

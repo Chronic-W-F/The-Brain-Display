@@ -26,6 +26,11 @@
       border-radius: 10px;
       font-weight: bold;
       color: white;
+      transition: background-color 1s ease, color 1s ease;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 10px;
     }
     .idle {
       background-color: gray;
@@ -80,6 +85,17 @@
       border-bottom: 1px solid #eee;
       padding-bottom: 4px;
     }
+    .fan {
+      width: 24px;
+      height: 24px;
+      background: url('https://upload.wikimedia.org/wikipedia/commons/3/3c/Fan_icon.svg') no-repeat center;
+      background-size: contain;
+      animation: spin 1s linear infinite;
+    }
+    @keyframes spin {
+      0% {transform: rotate(0deg);}
+      100% {transform: rotate(360deg);}
+    }
   </style>
 </head>
 <body>
@@ -90,7 +106,10 @@
   <div id="currentTemp">Current Temp: 60°F</div>
   <div id="currentHumidity">Current Humidity: 60%</div>
 
-  <div id="status" class="status idle">Idle</div>
+  <div id="status" class="status idle">
+    <span id="statusText">Idle</span>
+    <div id="fanIcon" style="display:none;"></div>
+  </div>
 
   <div class="target-controls">
     <div class="target-group">
@@ -137,24 +156,30 @@ function updateDisplay() {
   document.getElementById('targetHumidity').innerText = targetHumidity;
 
   const statusDiv = document.getElementById('status');
+  const statusText = document.getElementById('statusText');
+  const fanIcon = document.getElementById('fanIcon');
+
   statusDiv.className = 'status';
+  fanIcon.style.display = 'none';
 
   const tempDiff = Math.abs(currentTemp - targetTemp);
   const humDiff = Math.abs(currentHumidity - targetHumidity);
 
   if (tempDiff > 2 || humDiff > 3) {
     statusDiv.classList.add('alert');
-    statusDiv.innerText = 'ALERT: Temp and/or Humidity!';
+    statusText.innerText = 'ALERT: Temp and/or Humidity!';
   } else {
     if (currentTemp < targetTemp - 0.5) {
       statusDiv.classList.add('heating');
-      statusDiv.innerText = 'Heating...';
+      statusText.innerText = 'Heating...';
     } else if (currentTemp > targetTemp + 0.5) {
       statusDiv.classList.add('cooling');
-      statusDiv.innerText = 'Cooling...';
+      statusText.innerText = 'Cooling...';
+      fanIcon.style.display = 'inline-block';
+      fanIcon.className = 'fan';
     } else {
       statusDiv.classList.add('idle');
-      statusDiv.innerText = 'Idle';
+      statusText.innerText = 'Idle';
     }
   }
 }

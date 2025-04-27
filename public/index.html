@@ -78,8 +78,18 @@
     .humidity-decrease {
       background-color: #ffff99; /* Yellow */
     }
-    .temp-increase:hover, .temp-decrease:hover, .humidity-increase:hover, .humidity-decrease:hover {
-      filter: brightness(85%);
+    .warning {
+      margin-top: 15px;
+      padding: 10px;
+      font-weight: bold;
+      color: white;
+      background-color: red;
+      border-radius: 10px;
+      animation: flash 1s infinite alternate;
+    }
+    @keyframes flash {
+      from { opacity: 1; }
+      to { opacity: 0.5; }
     }
   </style>
 </head>
@@ -92,6 +102,8 @@
       <p><strong>Current Temp:</strong> <span id="currentTemp">--</span>°F</p>
       <p><strong>Current Humidity:</strong> <span id="currentHumidity">--</span>%</p>
     </div>
+
+    <div id="warningBox" style="display: none;" class="warning">ALERT!</div>
 
     <div class="status" id="systemStatus">Idle</div>
 
@@ -122,40 +134,40 @@
     }
 
     function updateReadings() {
-      const temp = getRandom(58, 65);
-      const humidity = getRandom(54, 64);
+      const temp = getRandom(55, 65);
+      const humidity = getRandom(50, 65);
 
       document.getElementById('currentTemp').innerText = temp;
       document.getElementById('currentHumidity').innerText = humidity;
+
+      checkForAlarms();
     }
 
     function updateSystemStatus() {
       const statusElement = document.getElementById('systemStatus');
+      if (alarmActive) return; // don't override alarms
+
       const randomState = Math.floor(Math.random() * 4);
 
       switch (randomState) {
         case 0:
           statusElement.innerText = "Idle";
           statusElement.style.backgroundColor = "#d0ffd0";
-          statusElement.style.borderColor = "#3c763d";
           statusElement.style.color = "#333";
           break;
         case 1:
           statusElement.innerText = "Cooling...";
           statusElement.style.backgroundColor = "#d0e8ff";
-          statusElement.style.borderColor = "#337ab7";
           statusElement.style.color = "#333";
           break;
         case 2:
           statusElement.innerText = "Heating...";
           statusElement.style.backgroundColor = "#fff5cc";
-          statusElement.style.borderColor = "#f0ad4e";
           statusElement.style.color = "#333";
           break;
         case 3:
           statusElement.innerText = "ALARM! Check Chamber!";
           statusElement.style.backgroundColor = "#ffd6d6";
-          statusElement.style.borderColor = "#d9534f";
           statusElement.style.color = "#a94442";
           break;
       }
@@ -170,6 +182,48 @@
         let humidity = parseInt(document.getElementById('targetHumidity').innerText);
         humidity += amount;
         document.getElementById('targetHumidity').innerText = humidity;
+      }
+      checkForAlarms();
+    }
+
+    let alarmActive = false;
+
+    function checkForAlarms() {
+      const currentTemp = parseInt(document.getElementById('currentTemp').innerText);
+      const targetTemp = parseInt(document.getElementById('targetTemp').innerText);
+      const currentHumidity = parseInt(document.getElementById('currentHumidity').innerText);
+      const targetHumidity = parseInt(document.getElementById('targetHumidity').innerText);
+
+      const tempDiff = Math.abs(currentTemp - targetTemp);
+      const humidityDiff = Math.abs(currentHumidity - targetHumidity);
+
+      const warningBox = document.getElementById('warningBox');
+      const status = document.getElementById('systemStatus');
+
+      if (tempDiff > 3 && humidityDiff > 3) {
+        warningBox.style.display = "block";
+        warningBox.innerText = "ALERT! Temp and Humidity Out of Range!";
+        status.innerText = "ALARM: Temp and Humidity!";
+        status.style.backgroundColor = "#ff0000";
+        status.style.color = "#fff";
+        alarmActive = true;
+      } else if (tempDiff > 3) {
+        warningBox.style.display = "block";
+        warningBox.innerText = "ALERT! Temp Out of Range!";
+        status.innerText = "ALARM: Temp Out of Range!";
+        status.style.backgroundColor = "#ff0000";
+        status.style.color = "#fff";
+        alarmActive = true;
+      } else if (humidityDiff > 3) {
+        warningBox.style.display = "block";
+        warningBox.innerText = "ALERT! Humidity Out of Range!";
+        status.innerText = "ALARM: Humidity Out of Range!";
+        status.style.backgroundColor = "#ff0000";
+        status.style.color = "#fff";
+        alarmActive = true;
+      } else {
+        warningBox.style.display = "none";
+        alarmActive = false;
       }
     }
 

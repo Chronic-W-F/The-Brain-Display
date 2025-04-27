@@ -2,202 +2,150 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>The Brain Display</title>
+  <title>The Brain</title>
   <style>
     body {
-      background: linear-gradient(to bottom, #d3d3d3, #c0c0c0);
       font-family: Arial, sans-serif;
-      text-align: center;
-      padding: 30px;
+      background: linear-gradient(to bottom, #e0e0e0, #b0b0b0);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      padding-top: 30px;
     }
     .container {
-      background: #f0f0f0;
-      padding: 30px;
-      border-radius: 30px;
-      display: inline-block;
-      box-shadow: 0 4px 8px rgba(0,0,0,0.2);
-      margin-top: 20px;
-    }
-    h1 {
-      margin-bottom: 20px;
-    }
-    .reading {
-      font-size: 22px;
-      margin: 8px 0;
-      font-weight: bold;
+      background-color: #f8f8f8;
+      padding: 20px 30px;
+      border-radius: 20px;
+      box-shadow: 0 5px 10px rgba(0,0,0,0.2);
+      text-align: center;
+      width: 320px;
     }
     .status {
-      margin: 10px auto;
-      padding: 10px;
-      font-size: 20px;
-      width: 90%;
-      border-radius: 12px;
+      margin: 10px 0;
+      padding: 12px;
+      border-radius: 10px;
+      font-weight: bold;
+      color: white;
     }
     .idle {
-      background-color: #ddd;
+      background-color: gray;
     }
     .cooling {
-      background-color: #add8e6;
+      background-color: #4da6ff;
     }
     .heating {
-      background-color: #f08080;
+      background-color: #ff6666;
     }
     .alert {
-      margin-top: 10px;
-      background-color: #ff7f7f;
-      color: white;
-      font-weight: bold;
-      padding: 8px;
-      border-radius: 15px;
-      width: 90%;
-      margin-left: auto;
-      margin-right: auto;
+      background-color: red;
+      animation: blinker 1s linear infinite;
     }
-    .alarm {
-      margin-top: 8px;
-      background-color: #ff0000;
-      color: white;
-      font-weight: bold;
-      padding: 8px;
-      border-radius: 15px;
-      width: 90%;
-      margin-left: auto;
-      margin-right: auto;
+    @keyframes blinker {
+      50% { opacity: 0.5; }
     }
-    .controls {
+    .target-controls {
       margin-top: 20px;
     }
-    .target-label {
-      font-size: 20px;
-      font-weight: bold;
-    }
-    .adjust-buttons {
-      margin-top: 5px;
+    .target-group {
+      margin-bottom: 15px;
     }
     button {
-      width: 40px;
-      height: 40px;
-      margin: 2px;
-      border: none;
-      font-size: 20px;
+      margin: 0 4px;
+      padding: 6px 12px;
+      font-size: 18px;
       font-weight: bold;
-      color: white;
-      border-radius: 8px;
+      border: none;
+      border-radius: 6px;
       cursor: pointer;
+      color: white;
     }
-    .red {
-      background-color: #ff5c5c;
-    }
-    .blue {
-      background-color: #4f8cff;
-    }
-    .green {
-      background-color: #4caf50;
-    }
-    .yellow {
-      background-color: #ffeb3b;
-      color: #333;
-    }
+    .temp-plus { background-color: #ff4d4d; }
+    .temp-minus { background-color: #4d79ff; }
+    .hum-plus { background-color: #33cc33; }
+    .hum-minus { background-color: #ffdb4d; color: black; }
   </style>
 </head>
 <body>
+
   <h1>The Brain</h1>
+
   <div class="container">
-    <div class="reading" id="temp">Current Temp: 58°F</div>
-    <div class="reading" id="humidity">Current Humidity: 57%</div>
-    <div class="status idle" id="status">Idle</div>
+    <div id="currentTemp">Current Temp: 60°F</div>
+    <div id="currentHumidity">Current Humidity: 60%</div>
 
-    <div id="alert" class="alert" style="display:none;">ALERT! Temp and/or Humidity Out of Range!</div>
-    <div id="alarm" class="alarm" style="display:none;">ALARM: Temp and/or Humidity!</div>
+    <div id="status" class="status idle">Idle</div>
 
-    <div class="controls">
-      <div class="target-label">
-        Target Temp: <span id="target-temp">60</span>°F
+    <div class="target-controls">
+      <div class="target-group">
+        <strong>Target Temp:</strong> <span id="targetTemp">60</span>°F
+        <br>
+        <button class="temp-plus" onclick="adjustTarget('temp', 1)">+</button>
+        <button class="temp-minus" onclick="adjustTarget('temp', -1)">-</button>
       </div>
-      <div class="adjust-buttons">
-        <button class="red" onclick="adjustTarget('temp', 1)">+</button>
-        <button class="blue" onclick="adjustTarget('temp', -1)">-</button>
-      </div>
-
-      <div class="target-label" style="margin-top:15px;">
-        Target Humidity: <span id="target-humidity">58</span>%
-      </div>
-      <div class="adjust-buttons">
-        <button class="green" onclick="adjustTarget('humidity', 1)">+</button>
-        <button class="yellow" onclick="adjustTarget('humidity', -1)">-</button>
+      <div class="target-group">
+        <strong>Target Humidity:</strong> <span id="targetHumidity">60</span>%
+        <br>
+        <button class="hum-plus" onclick="adjustTarget('humidity', 1)">+</button>
+        <button class="hum-minus" onclick="adjustTarget('humidity', -1)">-</button>
       </div>
     </div>
   </div>
 
-  <script>
-    let currentTemp = 58;
-    let currentHumidity = 57;
-    let targetTemp = 60;
-    let targetHumidity = 58;
+<script>
+let currentTemp = 60;
+let currentHumidity = 60;
+let targetTemp = 60;
+let targetHumidity = 60;
 
-    function updateDisplay() {
-      document.getElementById('temp').textContent = `Current Temp: ${currentTemp}°F`;
-      document.getElementById('humidity').textContent = `Current Humidity: ${currentHumidity}%`;
-      document.getElementById('target-temp').textContent = targetTemp;
-      document.getElementById('target-humidity').textContent = targetHumidity;
+function updateDisplay() {
+  document.getElementById('currentTemp').innerText = `Current Temp: ${currentTemp}°F`;
+  document.getElementById('currentHumidity').innerText = `Current Humidity: ${currentHumidity}%`;
+  document.getElementById('targetTemp').innerText = targetTemp;
+  document.getElementById('targetHumidity').innerText = targetHumidity;
 
-      let statusEl = document.getElementById('status');
+  const statusDiv = document.getElementById('status');
+  statusDiv.className = 'status';
 
-      // Determine status
-      if (currentTemp > targetTemp) {
-        statusEl.textContent = "Cooling...";
-        statusEl.className = "status cooling";
-      } else if (currentTemp < targetTemp) {
-        statusEl.textContent = "Heating...";
-        statusEl.className = "status heating";
-      } else {
-        statusEl.textContent = "Idle";
-        statusEl.className = "status idle";
-      }
+  const tempDiff = Math.abs(currentTemp - targetTemp);
+  const humDiff = Math.abs(currentHumidity - targetHumidity);
 
-      // Show alert if outside tight range
-      const tempDiff = Math.abs(currentTemp - targetTemp);
-      const humidityDiff = Math.abs(currentHumidity - targetHumidity);
-
-      if (tempDiff > 2 || humidityDiff > 3) {
-        document.getElementById('alert').style.display = 'block';
-      } else {
-        document.getElementById('alert').style.display = 'none';
-      }
-
-      // Show alarm if way out
-      if (tempDiff > 4 || humidityDiff > 5) {
-        document.getElementById('alarm').style.display = 'block';
-      } else {
-        document.getElementById('alarm').style.display = 'none';
-      }
+  if (tempDiff > 2 || humDiff > 3) {
+    statusDiv.classList.add('alert');
+    statusDiv.innerText = 'ALERT: Temp and/or Humidity Out of Range!';
+  } else {
+    if (currentTemp < targetTemp - 0.5) {
+      statusDiv.classList.add('heating');
+      statusDiv.innerText = 'Heating...';
+    } else if (currentTemp > targetTemp + 0.5) {
+      statusDiv.classList.add('cooling');
+      statusDiv.innerText = 'Cooling...';
+    } else {
+      statusDiv.classList.add('idle');
+      statusDiv.innerText = 'Idle';
     }
+  }
+}
 
-    function adjustTarget(type, amount) {
-      if (type === 'temp') {
-        targetTemp += amount;
-      } else if (type === 'humidity') {
-        targetHumidity += amount;
-      }
-      updateDisplay();
-    }
+function adjustTarget(type, change) {
+  if (type === 'temp') {
+    targetTemp += change;
+  } else if (type === 'humidity') {
+    targetHumidity += change;
+  }
+  updateDisplay();
+}
 
-    function randomizeReadings() {
-      // Randomly adjust temp and humidity by -2, -1, 0, +1, +2
-      currentTemp += Math.floor(Math.random() * 5) - 2;
-      currentHumidity += Math.floor(Math.random() * 5) - 2;
+// Simulate changing environment
+setInterval(() => {
+  currentTemp += (Math.random() * 2 - 1).toFixed(1) * 1;
+  currentHumidity += (Math.random() * 2 - 1).toFixed(1) * 1;
+  currentTemp = Math.round(currentTemp);
+  currentHumidity = Math.round(currentHumidity);
+  updateDisplay();
+}, 10000);
 
-      // Clamp reasonable bounds
-      currentTemp = Math.max(40, Math.min(80, currentTemp));
-      currentHumidity = Math.max(30, Math.min(90, currentHumidity));
+updateDisplay();
+</script>
 
-      updateDisplay();
-    }
-
-    // Start the simulation
-    updateDisplay();
-    setInterval(randomizeReadings, 10000); // Every 10 seconds
-  </script>
 </body>
 </html>

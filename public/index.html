@@ -1,237 +1,184 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>The Brain Display</title>
-  <style>
-    body {
-      font-family: Arial, sans-serif;
-      background: linear-gradient(to bottom, #999, #ccc);
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      justify-content: flex-start;
-      min-height: 100vh;
-      margin: 0;
-      padding: 20px;
-      color: #333;
-    }
-    .header {
-      font-size: 2em;
-      font-weight: bold;
-      margin-bottom: 20px;
-    }
-    .card {
-      background-color: #eee;
-      border-radius: 20px;
-      padding: 20px;
-      width: 90%;
-      max-width: 400px;
-      text-align: center;
-      box-shadow: 0px 0px 15px rgba(0,0,0,0.2);
-    }
-    .status {
-      margin-top: 10px;
-      padding: 10px;
-      border-radius: 10px;
-      font-weight: bold;
-      transition: background-color 0.5s, border-color 0.5s, color 0.5s;
-    }
-    .controls {
-      margin-top: 20px;
-    }
-    .control-row {
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      margin-bottom: 10px;
-    }
-    .label {
-      font-weight: bold;
-      margin-right: 10px;
-    }
-    .adjust-buttons {
-      display: flex;
-      gap: 5px;
-    }
-    .adjust-buttons button {
-      width: 40px;
-      height: 40px;
-      font-size: 20px;
-      font-weight: bold;
-      border: none;
-      border-radius: 8px;
-      color: #000;
-      cursor: pointer;
-      transition: background-color 0.2s;
-    }
-    .temp-increase {
-      background-color: #ff6666; /* Red */
-    }
-    .temp-decrease {
-      background-color: #66b3ff; /* Blue */
-    }
-    .humidity-increase {
-      background-color: #66ff66; /* Green */
-    }
-    .humidity-decrease {
-      background-color: #ffff99; /* Yellow */
-    }
-    .warning {
-      margin-top: 15px;
-      padding: 10px;
-      font-weight: bold;
-      color: white;
-      background-color: red;
-      border-radius: 10px;
-      animation: flash 1s infinite alternate;
-    }
-    @keyframes flash {
-      from { opacity: 1; }
-      to { opacity: 0.5; }
-    }
-  </style>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>The Brain Display</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background: linear-gradient(to bottom, #d3d3d3, #b0b0b0);
+            margin: 0;
+            padding: 20px;
+            text-align: center;
+        }
+        .container {
+            background: #f4f4f4;
+            padding: 30px;
+            border-radius: 25px;
+            display: inline-block;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.3);
+        }
+        h1 {
+            margin-bottom: 20px;
+        }
+        .reading {
+            font-size: 20px;
+            margin: 10px 0;
+            font-weight: bold;
+        }
+        .status-line {
+            margin: 15px 0;
+            padding: 12px;
+            font-size: 20px;
+            font-weight: bold;
+            border-radius: 10px;
+            animation: pulse 2s infinite;
+        }
+        @keyframes pulse {
+            0% {opacity: 1;}
+            50% {opacity: 0.7;}
+            100% {opacity: 1;}
+        }
+        .alert {
+            background-color: #ff7f7f;
+            color: white;
+            margin: 10px 0;
+            padding: 10px;
+            font-size: 18px;
+            border-radius: 12px;
+        }
+        .alarm {
+            background-color: red;
+            color: white;
+            font-weight: bold;
+            font-size: 20px;
+            padding: 15px;
+            border-radius: 10px;
+            margin-bottom: 10px;
+        }
+        .target-controls {
+            margin-top: 20px;
+        }
+        .target-controls div {
+            margin: 8px 0;
+            font-size: 18px;
+            font-weight: bold;
+        }
+        button {
+            font-size: 20px;
+            font-weight: bold;
+            width: 40px;
+            height: 40px;
+            margin: 5px;
+            border: none;
+            border-radius: 8px;
+            color: white;
+            cursor: pointer;
+        }
+        .temp-plus { background-color: #ff4d4d; }
+        .temp-minus { background-color: #4d79ff; }
+        .humidity-plus { background-color: #4dff4d; }
+        .humidity-minus { background-color: #ffff4d; color: black; }
+    </style>
 </head>
 <body>
+    <h1>The Brain</h1>
 
-  <div class="header">The Brain</div>
+    <div class="container">
+        <div id="current-readings">
+            <div class="reading" id="temp">Current Temp: 60°F</div>
+            <div class="reading" id="humidity">Current Humidity: 58%</div>
+        </div>
 
-  <div class="card">
-    <div>
-      <p><strong>Current Temp:</strong> <span id="currentTemp">--</span>°F</p>
-      <p><strong>Current Humidity:</strong> <span id="currentHumidity">--</span>%</p>
+        <div id="status" class="status-line" style="background-color: #cfcfcf;">Idle...</div>
+
+        <div id="alert" class="alert" style="display:none;">
+            ALERT! Temp and/or Humidity Out of Range!
+        </div>
+        <div id="alarm" class="alarm" style="display:none;">
+            ALARM: Temp and/or Humidity!
+        </div>
+
+        <div class="target-controls">
+            <div>Target Temp: <span id="targetTemp">60</span>°F
+                <button class="temp-plus" onclick="adjustTemp(1)">+</button>
+                <button class="temp-minus" onclick="adjustTemp(-1)">-</button>
+            </div>
+            <div>Target Humidity: <span id="targetHumidity">58</span>%
+                <button class="humidity-plus" onclick="adjustHumidity(1)">+</button>
+                <button class="humidity-minus" onclick="adjustHumidity(-1)">-</button>
+            </div>
+        </div>
     </div>
 
-    <div id="warningBox" style="display: none;" class="warning">ALERT!</div>
+    <script>
+        let targetTemp = 60;
+        let targetHumidity = 58;
+        let currentTemp = 60;
+        let currentHumidity = 58;
 
-    <div class="status" id="systemStatus">Idle</div>
+        function adjustTemp(change) {
+            targetTemp += change;
+            document.getElementById('targetTemp').innerText = targetTemp;
+        }
 
-    <div class="controls">
-      <div class="control-row">
-        <span class="label">Target Temp:</span> 
-        <span id="targetTemp">60</span>°F
-        <div class="adjust-buttons">
-          <button class="temp-increase" onclick="adjustTarget('temp', 1)">+</button>
-          <button class="temp-decrease" onclick="adjustTarget('temp', -1)">-</button>
-        </div>
-      </div>
+        function adjustHumidity(change) {
+            targetHumidity += change;
+            document.getElementById('targetHumidity').innerText = targetHumidity;
+        }
 
-      <div class="control-row">
-        <span class="label">Target Humidity:</span> 
-        <span id="targetHumidity">58</span>%
-        <div class="adjust-buttons">
-          <button class="humidity-increase" onclick="adjustTarget('humidity', 1)">+</button>
-          <button class="humidity-decrease" onclick="adjustTarget('humidity', -1)">-</button>
-        </div>
-      </div>
-    </div>
-  </div>
+        function updateStatus() {
+            const status = document.getElementById('status');
+            const tempDiff = currentTemp - targetTemp;
 
-  <script>
-    function getRandom(min, max) {
-      return Math.floor(Math.random() * (max - min + 1)) + min;
-    }
+            if (Math.abs(tempDiff) <= 1) {
+                status.style.backgroundColor = '#cfcfcf';
+                status.innerText = "Idle";
+            } else if (tempDiff > 1) {
+                status.style.backgroundColor = '#4d79ff';
+                status.innerText = "Cooling...";
+            } else {
+                status.style.backgroundColor = '#ff4d4d';
+                status.innerText = "Heating...";
+            }
+        }
 
-    function updateReadings() {
-      const temp = getRandom(55, 65);
-      const humidity = getRandom(50, 65);
+        function updateDisplay() {
+            document.getElementById('temp').innerText = `Current Temp: ${currentTemp}°F`;
+            document.getElementById('humidity').innerText = `Current Humidity: ${currentHumidity}%`;
+            updateStatus();
 
-      document.getElementById('currentTemp').innerText = temp;
-      document.getElementById('currentHumidity').innerText = humidity;
+            const tempDiff = Math.abs(currentTemp - targetTemp);
+            const humidityDiff = Math.abs(currentHumidity - targetHumidity);
 
-      checkForAlarms();
-    }
+            const alertBox = document.getElementById('alert');
+            const alarmBox = document.getElementById('alarm');
 
-    function updateSystemStatus() {
-      const statusElement = document.getElementById('systemStatus');
-      if (alarmActive) return; // don't override alarms
+            // Tighter alarms: 2°F and 2%
+            if (tempDiff > 2 || humidityDiff > 2) {
+                alertBox.style.display = 'block';
+                alarmBox.style.display = 'block';
+            } else {
+                alertBox.style.display = 'none';
+                alarmBox.style.display = 'none';
+            }
+        }
 
-      const randomState = Math.floor(Math.random() * 4);
+        function randomizeMockData() {
+            // Randomly move temp and humidity by -2, -1, 0, +1, +2
+            currentTemp += Math.floor(Math.random() * 5) - 2;
+            currentHumidity += Math.floor(Math.random() * 5) - 2;
 
-      switch (randomState) {
-        case 0:
-          statusElement.innerText = "Idle";
-          statusElement.style.backgroundColor = "#d0ffd0";
-          statusElement.style.color = "#333";
-          break;
-        case 1:
-          statusElement.innerText = "Cooling...";
-          statusElement.style.backgroundColor = "#d0e8ff";
-          statusElement.style.color = "#333";
-          break;
-        case 2:
-          statusElement.innerText = "Heating...";
-          statusElement.style.backgroundColor = "#fff5cc";
-          statusElement.style.color = "#333";
-          break;
-        case 3:
-          statusElement.innerText = "ALARM! Check Chamber!";
-          statusElement.style.backgroundColor = "#ffd6d6";
-          statusElement.style.color = "#a94442";
-          break;
-      }
-    }
+            // Keep humidity realistic (10%-90%)
+            currentHumidity = Math.min(90, Math.max(10, currentHumidity));
 
-    function adjustTarget(type, amount) {
-      if (type === 'temp') {
-        let temp = parseInt(document.getElementById('targetTemp').innerText);
-        temp += amount;
-        document.getElementById('targetTemp').innerText = temp;
-      } else if (type === 'humidity') {
-        let humidity = parseInt(document.getElementById('targetHumidity').innerText);
-        humidity += amount;
-        document.getElementById('targetHumidity').innerText = humidity;
-      }
-      checkForAlarms();
-    }
+            updateDisplay();
+        }
 
-    let alarmActive = false;
-
-    function checkForAlarms() {
-      const currentTemp = parseInt(document.getElementById('currentTemp').innerText);
-      const targetTemp = parseInt(document.getElementById('targetTemp').innerText);
-      const currentHumidity = parseInt(document.getElementById('currentHumidity').innerText);
-      const targetHumidity = parseInt(document.getElementById('targetHumidity').innerText);
-
-      const tempDiff = Math.abs(currentTemp - targetTemp);
-      const humidityDiff = Math.abs(currentHumidity - targetHumidity);
-
-      const warningBox = document.getElementById('warningBox');
-      const status = document.getElementById('systemStatus');
-
-      if (tempDiff > 3 && humidityDiff > 3) {
-        warningBox.style.display = "block";
-        warningBox.innerText = "ALERT! Temp and Humidity Out of Range!";
-        status.innerText = "ALARM: Temp and Humidity!";
-        status.style.backgroundColor = "#ff0000";
-        status.style.color = "#fff";
-        alarmActive = true;
-      } else if (tempDiff > 3) {
-        warningBox.style.display = "block";
-        warningBox.innerText = "ALERT! Temp Out of Range!";
-        status.innerText = "ALARM: Temp Out of Range!";
-        status.style.backgroundColor = "#ff0000";
-        status.style.color = "#fff";
-        alarmActive = true;
-      } else if (humidityDiff > 3) {
-        warningBox.style.display = "block";
-        warningBox.innerText = "ALERT! Humidity Out of Range!";
-        status.innerText = "ALARM: Humidity Out of Range!";
-        status.style.backgroundColor = "#ff0000";
-        status.style.color = "#fff";
-        alarmActive = true;
-      } else {
-        warningBox.style.display = "none";
-        alarmActive = false;
-      }
-    }
-
-    setInterval(updateReadings, 5000);
-    setInterval(updateSystemStatus, 5000);
-    updateReadings();
-    updateSystemStatus();
-  </script>
-
+        // Update the display immediately and every 10 seconds
+        updateDisplay();
+        setInterval(randomizeMockData, 10000);
+    </script>
 </body>
 </html>

@@ -13,7 +13,7 @@
       padding-top: 30px;
     }
     .container {
-      background-color: #f8f8f8;
+      background: #f8f8f8;
       padding: 20px 30px;
       border-radius: 20px;
       box-shadow: 0 5px 10px rgba(0,0,0,0.2);
@@ -63,39 +63,72 @@
     .temp-minus { background-color: #4d79ff; }
     .hum-plus { background-color: #33cc33; }
     .hum-minus { background-color: #ffdb4d; color: black; }
+    .log-container {
+      margin-top: 25px;
+      background: #ffffff;
+      border: 1px solid #ccc;
+      border-radius: 10px;
+      padding: 10px;
+      width: 280px;
+      max-height: 200px;
+      overflow-y: auto;
+      text-align: left;
+      font-size: 14px;
+    }
+    .log-entry {
+      margin: 4px 0;
+      border-bottom: 1px solid #eee;
+      padding-bottom: 4px;
+    }
   </style>
 </head>
 <body>
 
-  <h1>The Brain</h1>
+<h1>The Brain</h1>
 
-  <div class="container">
-    <div id="currentTemp">Current Temp: 60°F</div>
-    <div id="currentHumidity">Current Humidity: 60%</div>
+<div class="container">
+  <div id="currentTemp">Current Temp: 60°F</div>
+  <div id="currentHumidity">Current Humidity: 60%</div>
 
-    <div id="status" class="status idle">Idle</div>
+  <div id="status" class="status idle">Idle</div>
 
-    <div class="target-controls">
-      <div class="target-group">
-        <strong>Target Temp:</strong> <span id="targetTemp">60</span>°F
-        <br>
-        <button class="temp-plus" onclick="adjustTarget('temp', 1)">+</button>
-        <button class="temp-minus" onclick="adjustTarget('temp', -1)">-</button>
-      </div>
-      <div class="target-group">
-        <strong>Target Humidity:</strong> <span id="targetHumidity">60</span>%
-        <br>
-        <button class="hum-plus" onclick="adjustTarget('humidity', 1)">+</button>
-        <button class="hum-minus" onclick="adjustTarget('humidity', -1)">-</button>
-      </div>
+  <div class="target-controls">
+    <div class="target-group">
+      <strong>Target Temp:</strong> <span id="targetTemp">60</span>°F
+      <br>
+      <button class="temp-plus" onclick="adjustTarget('temp', 1)">+</button>
+      <button class="temp-minus" onclick="adjustTarget('temp', -1)">-</button>
+    </div>
+    <div class="target-group">
+      <strong>Target Humidity:</strong> <span id="targetHumidity">60</span>%
+      <br>
+      <button class="hum-plus" onclick="adjustTarget('humidity', 1)">+</button>
+      <button class="hum-minus" onclick="adjustTarget('humidity', -1)">-</button>
     </div>
   </div>
+
+  <div class="log-container" id="envLog">
+    <strong>Environment Log:</strong>
+    <div id="logEntries"></div>
+  </div>
+
+</div>
 
 <script>
 let currentTemp = 60;
 let currentHumidity = 60;
 let targetTemp = 60;
 let targetHumidity = 60;
+let logHistory = [];
+
+function adjustTarget(type, change) {
+  if (type === 'temp') {
+    targetTemp += change;
+  } else if (type === 'humidity') {
+    targetHumidity += change;
+  }
+  updateDisplay();
+}
 
 function updateDisplay() {
   document.getElementById('currentTemp').innerText = `Current Temp: ${currentTemp}°F`;
@@ -111,7 +144,7 @@ function updateDisplay() {
 
   if (tempDiff > 2 || humDiff > 3) {
     statusDiv.classList.add('alert');
-    statusDiv.innerText = 'ALERT: Temp and/or Humidity Out of Range!';
+    statusDiv.innerText = 'ALERT: Temp and/or Humidity!';
   } else {
     if (currentTemp < targetTemp - 0.5) {
       statusDiv.classList.add('heating');
@@ -126,25 +159,37 @@ function updateDisplay() {
   }
 }
 
-function adjustTarget(type, change) {
-  if (type === 'temp') {
-    targetTemp += change;
-  } else if (type === 'humidity') {
-    targetHumidity += change;
-  }
-  updateDisplay();
-}
-
-// Simulate changing environment
-setInterval(() => {
+function randomizeReadings() {
   currentTemp += (Math.random() * 2 - 1).toFixed(1) * 1;
   currentHumidity += (Math.random() * 2 - 1).toFixed(1) * 1;
   currentTemp = Math.round(currentTemp);
   currentHumidity = Math.round(currentHumidity);
-  updateDisplay();
-}, 10000);
 
+  // Clamp values
+  currentTemp = Math.min(90, Math.max(40, currentTemp));
+  currentHumidity = Math.min(90, Math.max(30, currentHumidity));
+
+  updateDisplay();
+  logEnvironment();
+}
+
+function logEnvironment() {
+  const now = new Date();
+  const time = now.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+  const entry = `${time} | Temp: ${currentTemp}°F | Humidity: ${currentHumidity}%`;
+
+  logHistory.unshift(entry); // Add to top
+  if (logHistory.length > 10) {
+    logHistory.pop(); // Keep only 10
+  }
+
+  const logEntriesDiv = document.getElementById('logEntries');
+  logEntriesDiv.innerHTML = logHistory.map(log => `<div class="log-entry">${log}</div>`).join('');
+}
+
+// Start
 updateDisplay();
+setInterval(randomizeReadings, 10000);
 </script>
 
 </body>
